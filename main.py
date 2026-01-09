@@ -3,6 +3,7 @@
 # langgraph is a framework for building AI agents using a graph-based approach.
 # from langgraph.prebuilt import create_react_agent
 # dotenv is used to load environment variables from a .env file.
+
 from dotenv import load_dotenv
 #read environment variables.
 import os
@@ -14,6 +15,13 @@ import json
 # Load environment variables from .env file
 load_dotenv()
 
+#@tool
+#def calculator(a: float, b: float) -> str:
+#   """Useful for performing basic arithmetic calculations with numbers"""
+#    print("Tool has been called.")
+#    return f"The sum of {a} and {b} is {a + b}"
+
+
 # If API key is missing, stop the program
 OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")
 if not OPENROUTER_API_KEY:
@@ -23,7 +31,7 @@ if not OPENROUTER_API_KEY:
 def call_openrouter_api(user_input):
     API_URL = "https://openrouter.ai/api/v1/chat/completions"
     # Free AI model hosted on OpenRouter
-    MODEL = "nex-agi/deepseek-v3.1-nex-n1:free"
+    MODEL = "tngtech/deepseek-r1t2-chimera:free"
     OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")
 
     if not OPENROUTER_API_KEY:
@@ -60,6 +68,10 @@ def main():
     - Sends it to OpenRouter
     - Prints AI response
     """
+
+  #  tools = [calculator]
+  # agent_executor = create_react_agent(model, tools)
+
 
     print("Welcome. I am your AI Agent. Type 'exit' to quit.")
     print("You can ask questions or chat with me")
