@@ -1,56 +1,85 @@
 # langchain is a high-level framework for building applications powered by language models.
-from langchain_core.messages import HumanMessage
-from langchain_openai import ChatOpenAI
-from langchain.tools import tool
+# from langchain_core.messages import HumanMessage
 # langgraph is a framework for building AI agents using a graph-based approach.
-from langgraph.prebuilt import create_react_agent
+# from langgraph.prebuilt import create_react_agent
 # dotenv is used to load environment variables from a .env file.
 from dotenv import load_dotenv
+#read environment variables.
+import os
+#make HTTP requests (calling OpenRouter API).
+import requests
+#convert Python objects into JSON format strings and vice versa.
+import json
 
 # Load environment variables from .env file
 load_dotenv()
 
+# If API key is missing, stop the program
+OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")
+if not OPENROUTER_API_KEY:
+    raise ValueError("OpenRouter API key is not set. Please add it to your environment variables.")
+
+# Function to call OpenRouter API directly using requests
+def call_openrouter_api(user_input):
+    API_URL = "https://openrouter.ai/api/v1/chat/completions"
+    # Free AI model hosted on OpenRouter
+    MODEL = "nex-agi/deepseek-v3.1-nex-n1:free"
+    OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")
+
+    if not OPENROUTER_API_KEY:
+        raise ValueError("OpenRouter API key is not set. Please add it to your environment variables.")
+
+    headers = {
+        "Authorization": f"Bearer {OPENROUTER_API_KEY}",
+        #sending JSON data
+        "Content-Type": "application/json",
+    }
+
+    payload = {
+        # AI model to use
+        "model": MODEL,
+        # Chat messages sent to the model
+        "messages": [
+            {"role": "user", "content": user_input} # Message is from user | user's text input
+        ]
+    }
+
+    response = requests.post(url=API_URL, headers=headers, data=json.dumps(payload)) # Convert Python dict → JSON
+
+    # Convert response JSON into Python dictionary
+    if response.status_code == 200:
+        return response.json()
+    else:
+        raise Exception(f"API call failed with status code {response.status_code}: {response.text}")
+
 #main function
 def main():
-    '''create a language model object, so ChatOpenAI connects to the openAI's chat model. temperaure means 
-    how models responds to inputs, higher temperature means more creative responses, lower means more focused and accurate'''
+    """
+    Main chat loop:
+    - Takes user input
+    - Sends it to OpenRouter
+    - Prints AI response
+    """
 
-    model = ChatOpenAI(temperature=0)
-
-    #create a empty lst of tools
-    tools = []
-
-    #create a react agent using the model and langgrapgh, agent can think and decide and respond accordingly
-    agent_executor = create_react_agent(model, tools=tools)
-
-    #basic welcome message
     print("Welcome. I am your AI Agent. Type 'exit' to quit.")
     print("You can ask questions or chat with me")
 
-    #use true, so will continue until user types exit
+    # Infinite loop, chat running until user exits
     while True:
         #get user inputs
         user_input = input("You: ")
         #user exit condition
-        if user_input == "exit":
+        if user_input.lower() == "exit":
             print("Goodbye!")
             break
 
-        #prints agent without going to the next line
-        print("Agent: ", end="")
-        #send user messages to the agent, HumanMessage wraps user text in a message object
-        #.stream() returns output piece by piece (chunks)
-        #enable real-time response streaming
-        for chunk in agent_executor.stream({
-    "messages": [HumanMessage(content=user_input)]}):
-            
-            #check if chunk has agent and messages
-            if "agent" in chunk and "messages" in chunk["agent"]:
-                for message in chunk["agent"]["messages"]:
-                    #print message content without going to next line
-                    print(message.content, end="")
-        print()
+        try:
+            # Send user input to OpenRouter API
+            response = call_openrouter_api(user_input)
+            #print agent response
+            print("Agent:", response["choices"][0]["message"]["content"])
+        except Exception as e:
+            print("Error:", e)
 
 if __name__ == "__main__":
     main()
- 
