@@ -2,6 +2,9 @@
 
 This is a simple Python-based AI agent that interacts with users using OpenRouter's API. The agent takes user input, sends it to the OpenRouter API, and responds with the AI-generated output.
 
+## Screenshot
+![Screenshot of the AI Agent](image.png)
+
 ## Features
 - Chat with an AI agent.
 - Uses OpenRouter API for AI model integration.
@@ -41,9 +44,6 @@ Using `python`:
 ```bash
 python main.py
 ```
-
-## Screenshot
-![Screenshot of the AI Agent](image.png)
 
 ## License
 This project is licensed under the MIT License. See the LICENSE file for details.
